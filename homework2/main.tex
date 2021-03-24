@@ -1,0 +1,275 @@
+\documentclass[a4paper]{article} 
+\input{head}
+\usepackage{bm}
+\begin{document}
+
+%-------------------------------
+%	TITLE SECTION
+%-------------------------------
+
+\fancyhead[C]{}
+\hrule \medskip % Upper rule
+\begin{minipage}{0.295\textwidth} 
+\raggedright
+\footnotesize
+SHRUTI RAO \hfill\\   
+2636454 \hfill\\
+s2.rao@student.vu.nl
+\end{minipage}
+\begin{minipage}{0.4\textwidth} 
+\centering 
+\large 
+Homework Assignment 2\\ 
+\normalsize 
+Machine Learning 1, 19/20\\ 
+\end{minipage}
+\begin{minipage}{0.295\textwidth} 
+\raggedleft
+\today\hfill\\
+\end{minipage}
+\medskip\hrule 
+\bigskip
+
+%-------------------------------
+%	CONTENTS
+%-------------------------------
+
+\section*{MAP Solution with Correlated Responses}
+\subsection*{a}
+Assuming N training vectors and using the provided likelihood function of the whole dataset:
+\begin{align*}
+    p(\textbf{t}| \pmb{\Psi}, \textbf{w}, \pmb{\Omega}) &= \mathcal{N}(\textbf{t} |\pmb{\Psi}\textbf{w}, \pmb{\Omega})
+\end{align*}{}
+
+The probability densify function for a multivariate Gaussian distribution is given by:
+\begin{align*}
+    \frac{1}{2\pi^{N/2}|\Sigma|^{1/2}}exp \left\{-\frac{1}{2}(\pmb{x}-\pmb{\mu})^{T}\pmb{\Sigma}^{-1}(\pmb{x}-\pmb{\mu}) \right\}
+\end{align*}{}
+
+As the data samples are no longer i.i.d, the likelihood in matrix/vector form is:
+\begin{align*}
+    p(\mathcal{D}|\pmb{\theta}) &= \mathcal{N}(\textbf{t} |\pmb{\Psi}\textbf{w}, \pmb{\Omega}) \\
+    &= \frac{1}{2\pi^{N/2}|\Omega|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{t}-\pmb{\Psi w})^{T}\pmb{\Omega}^{-1}(\pmb{t}-\pmb{\Psi w}) \right\}
+\end{align*}{}
+
+
+
+\subsection*{b}
+Let $\pmb{\Omega} = \pmb{A^{T}DA}$ where \pmb{D} is a diagonal matrix containing eigenvalues of $\pmb{\Omega}$.\\
+Let $\pmb{A^{T} = A^{-1}}$. Then following the Spectral Theorem:
+
+\begin{align*}
+    p(\mathcal{D}|\pmb{\theta}) &= \frac{1}{2\pi^{N/2}|\Omega|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{t}-\pmb{\Psi w})^{T}\pmb{\Omega}^{-1}(\pmb{t}-\pmb{\Psi w}) \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\pmb{A^TDA}|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{t}-\pmb{\Psi w})^{T}(\pmb{A^TDA})^{-1}(\pmb{t}-\pmb{\Psi w})  \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\pmb{A^TDA}|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{t}-\pmb{\Psi w})^{T}\pmb{(A^{T})^{-1}D^{-1}A^{-1}}(\pmb{t}-\pmb{\Psi w})  \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\pmb{A^TDA}|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{t}-\pmb{\Psi w})^{T}\pmb{(A^{-1})^{-1}D^{-1}A^{T}}(\pmb{t}-\pmb{\Psi w})  \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\pmb{A^TDA}|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{At}-\pmb{A\Psi w})^{T}\pmb{D^{-1}}(\pmb{At}-\pmb{A\Psi w})  \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\pmb{A^{-1}DA}|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{At}-\pmb{A\Psi w})^{T}\pmb{D^{-1}}(\pmb{At}-\pmb{A\Psi w})  \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\pmb{D}|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{At}-\pmb{A\Psi w})^{T}\pmb{D^{-1}}(\pmb{At}-\pmb{A\Psi w}) \right\} \\
+\end{align*}{}
+
+Moreover, $\pmb{\tau :=At} $ and $\pmb{\Phi :=A\Psi}$:
+\begin{align*}
+    &= \frac{1}{2\pi^{N/2}|\pmb{D}|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{\tau}-\pmb{\Phi w})^{T}\pmb{D^{-1}}(\pmb{\tau}-\pmb{\Phi w})  \right\} \\
+\end{align*}{}
+
+\subsection*{c}
+Factorization of the distribution into a univariate Gaussian Distribution:
+
+\begin{align*}
+    p(\mathcal{D}|\pmb{\theta}) &= \frac{1}{2\pi^{N/2}|\pmb{D}|^{1/2}}exp\left\{-\frac{1}{2}(\pmb{\tau}-\pmb{\Phi w})^{T}\pmb{D^{-1}}(\pmb{\tau}-\pmb{\Phi w})  \right\} \\
+\end{align*}{}
+
+D is a diagonal matrix and the determinant of D can be expressed as the product of its elements. Also, also we know that:
+$
+    (\pmb{\tau}-\pmb{\Phi w})^{T}(\pmb{\tau}-\pmb{\Phi w}) = 
+    || \pmb{\tau - \Phi w}||^{2}  = \sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2} 
+$
+
+\begin{align*}
+    &= \frac{1}{2\pi^{N/2}|\pmb{D}|^{1/2}}exp\left\{-\frac{1}{2}\pmb{D^{-1}}\sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2} \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\pmb{D}|^{1/2}}exp\left\{-\frac{\beta}{2}\sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2}  \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\beta|^{1/2}}exp\left\{-\frac{\beta}{2}\sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2}  \right\} \\
+    &= \frac{1}{2\pi^{N/2}|\beta|^{1/2}}\prod_{i=1}^{N}exp\left\{-\frac{\beta}{2}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2}  \right\} \\
+    &= \prod_{i=1}^{N}\frac{\beta_i^{-1/2}}{2\pi^{1/2}}exp\left\{-\frac{\beta_i}{2}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2}  \right\} \\
+    &= \prod_{i=1}^{N} \mathcal{N}\left(\pmb{\tau_i}|\pmb{w^T\Phi_i}, \frac{1}{\beta}\right)
+\end{align*}{}
+
+\subsection*{d}
+The prior over \pmb{w} is given by: $p(\pmb{w}) = \mathcal{N}(\pmb{w}|\pmb{0}, \alpha \pmb{I})$ where \pmb{0} is a vector of 0's and it's explicit form is:
+
+\begin{align*}
+    p(\pmb{w}) &= \frac{1}{2\pi^{N/2}|\alpha|^{N/2}}exp\left\{-\frac{\alpha}{2}(\pmb{w}- \pmb{0})^{T}(\pmb{w}-\pmb{0}) \right\} \\
+    &= \frac{-\alpha^{N/2}}{2\pi^{N/2}}exp\left\{-\frac{\alpha}{2}\pmb{w}^{T}\pmb{w} \right\} \\
+\end{align*}{}
+
+Taking the logarithm on both sides:
+\begin{align*}
+    ln(p(\pmb{w})) &= ln\left( \frac{-\alpha^{N/2}}{2\pi^{N/2}}exp\{-\frac{\alpha}{2}\pmb{w}^{T}\pmb{w} \}\right) \\
+    &= -\frac{N}{2}ln(\alpha) - \frac{N}{2}ln(2\pi) - \frac{\alpha}{2}\pmb{w^Tw} \\
+    &= - \frac{\alpha}{2}\pmb{w^Tw}  + C \text{\ where \ } C = -\frac{N}{2}ln(\alpha) - \frac{N}{2}ln(2\pi) \\
+\end{align*}{}
+
+\subsection*{e}
+The posterior for $p(\pmb{w}|\mathcal{D})$ over \pmb{w} is given by:
+\begin{align*}
+    p(\pmb{w}|\mathcal{D}) &= \frac{p(\mathcal{D}|\pmb{w})p(\pmb{w})}{p(\mathcal{D})} \\
+    &= \frac{\mathcal{N}(\textbf{t} |\pmb{\Psi}\textbf{w}, \pmb{\Omega})\mathcal{N}(\pmb{w}|\pmb{0}, \alpha \pmb{I})}{\int \mathcal{N}(\textbf{t} |\pmb{\Psi}\textbf{w}, \pmb{\Omega})\mathcal{N}(\pmb{w}|\pmb{0}, \alpha \pmb{I})dw} \\
+    &= \frac{\mathcal{N}(\textbf{t} |\pmb{\Psi}\textbf{w}, \pmb{\Omega})\mathcal{N}(\pmb{w}|\pmb{0}, \alpha \pmb{I})}{p(\pmb{t}|\pmb{\Psi}, \pmb{\alpha}, \pmb{\Omega})} \\
+\end{align*}{}
+
+\subsection*{f}
+Using the formula for posterior from part (e):
+\begin{align*}
+    p(\pmb{w}|\mathcal{D}) &= \frac{p(\mathcal{D}|\pmb{w})p(\pmb{w})}{p(\mathcal{D})} \\
+\end{align*}{}
+As $p(\mathcal{D})$ or $p(\pmb{t}|\pmb{\Psi}, \pmb{\alpha}, \pmb{\Omega})$ does not depend on w, thus we treat it as a constant $\mathcal{I}$ with respect to \pmb{w}. Doing so makes it easier to compute MAP estimator rather than take the full posterior distribution. Taking the integral for $\mathcal{I}$ is usually very challenging and thus gets avoided in this manner.
+
+\subsubsection*{Matrix Form:} 
+\begin{align*}
+    p(\mathcal{D}|\pmb{w}) &= \frac{1}{2\pi^{N/2}|\pmb{D}|^{1/2}}exp\left\{-\frac{\beta}{2}(\pmb{\tau}- \pmb{\Phi w})^{T}(\pmb{\tau}- \pmb{\Phi w}) \right\} \\
+    ln(p(\mathcal{D}|\pmb{w})) &= ln\left(\frac{-|\pmb{D}|^{1/2}}{2\pi^{N/2}}exp\left\{-\frac{\beta}{2}(\pmb{\tau}- \pmb{\Phi w})^{T}(\pmb{\tau}- \pmb{\Phi w}) \right\}\right) \\
+    &= -\frac{1}{2}ln(\pmb{D}) - \frac{N}{2}ln(2\pi) - \frac{\beta}{2}(\pmb{\tau}- \pmb{\Phi w})^{T}(\pmb{\tau}- \pmb{\Phi w}) \\
+    p(\pmb{w}) &= \frac{-\alpha^{N/2}}{2\pi^{N/2}}exp\left\{-\frac{\alpha}{2}\pmb{w}^{T}\pmb{w} \right\} \\
+    ln(p(\pmb{w})) &= ln\left(\frac{-\alpha^{N/2}}{2\pi^{N/2}}exp\left\{-\frac{\alpha}{2}\pmb{w}^{T}\pmb{w} \right\}\right) \\
+    &= -\frac{N}{2}ln(\alpha) - \frac{N}{2}ln(2\pi) - \frac{\alpha}{2}(\pmb{w^Tw})
+\end{align*}{}
+Applying the results from above we get the log-posterior for the matrix  form:
+\begin{align*}
+    ln(p(\pmb{w}|\mathcal{D})) &= ln(p(\mathcal{D}|\pmb{w})) + ln(p(\pmb{w})) - ln(I) \\
+    &= -\frac{1}{2}ln(\pmb{D}) - \frac{N}{2}ln(2\pi) - \frac{\beta}{2}(\pmb{\tau}- \pmb{\Phi w})^{T}(\pmb{\tau}- \pmb{\Phi w}) -\frac{N}{2}ln(\alpha) - \frac{N}{2}ln(2\pi) - \frac{\alpha}{2}(\pmb{w^Tw}) - ln(\mathcal{I}) \\
+    &=  - \frac{\alpha}{2}(\pmb{w^Tw}) - \frac{\beta}{2}(\pmb{\tau}- \pmb{\Phi w})^{T}(\pmb{\tau}- \pmb{\Phi w}) + C \\
+    \text{ \ where} \ C &= -\frac{1}{2}ln(\pmb{D}) - \frac{N}{2}ln(2\pi) -\frac{N}{2}ln(\alpha) - \frac{N}{2}ln(2\pi) - ln(\mathcal{I})
+\end{align*}{}
+
+\subsubsection*{Factored Form:} 
+\begin{align*}
+   p(\mathcal{D}|\pmb{w}) &= \frac{1}{2\pi^{N/2}|\pmb{D}|^{1/2}}exp\left\{-\frac{\beta}{2}\sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2} \right\} \\
+   ln(p(\mathcal{D}|\pmb{w})) &= ln\left(\frac{1}{2\pi^{N/2}|\pmb{D}|^{1/2}}exp\left\{-\frac{\beta}{2}\sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2} \right\} \right) \\
+   &= -\frac{1}{2}ln(\pmb{D}) - \frac{N}{2}ln(2\pi) - \frac{\beta}{2}\sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2} \\
+   p(\pmb{w}) &= \frac{-\alpha^{N/2}}{2\pi^{N/2}}exp\left\{-\frac{\alpha}{2}\sum_{i=0}^{N-1}w_i^{2} \right\} \\
+   ln(p(\pmb{w})) &= ln\left(\frac{-\alpha^{N/2}}{2\pi^{N/2}}exp\left\{-\frac{\alpha}{2}\sum_{i=0}^{N-1}w_i^{2} \right\} \right)\\
+   &= -\frac{N}{2}ln(\alpha) - \frac{N}{2}ln(2\pi) -\frac{\alpha}{2}\sum_{i=0}^{N-1}w_i^{2} \\
+\end{align*}{}
+
+Applying the results from above, we get the log-posterior for the matrix form for \textbf{w}:
+\begin{align*}
+    &=-\frac{1}{2}ln(\pmb{D}) - \frac{N}{2}ln(2\pi) - \frac{\beta}{2}\sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2} -\frac{N}{2}ln(\alpha) - \frac{N}{2}ln(2\pi) -\frac{\alpha}{2}\sum_{i=0}^{N-1}w_i^{2} - ln(\mathcal{I}) \\
+    &= -\frac{\beta}{2}\sum_{i=1}^{N}(\pmb{\tau_i}-\pmb{w^{T} \Phi_i})^{2} -\frac{\alpha}{2}\sum_{i=0}^{N-1}w_i^{2} + C \\
+    \text{\ where}\ C &= -\frac{1}{2}ln(\pmb{D}) - \frac{N}{2}ln(2\pi) - -\frac{N}{2}ln(\alpha) - \frac{N}{2}ln(2\pi) - ln(\mathcal{I})
+\end{align*}{}
+
+
+\subsection*{g}
+We use the log-posterior of the matrix form to solve for the derivative and obtain $\textbf{w}_{MAP}$
+
+\begin{align*}
+    ln(p(\pmb{w}|\mathcal{D})) &= - \frac{\alpha}{2}(\pmb{w^Tw}) - \frac{\beta}{2}(\pmb{\tau}- \pmb{\Phi w})^{T}(\pmb{\tau}- \pmb{\Phi w}) + C \\
+    \frac{\partial ln(p(\pmb{w}|\mathcal{D}))}{\partial \pmb{w}} &= -\alpha \pmb{w}^T + \beta(\pmb{\tau}-\pmb{\Phi w})^T \pmb{\Phi} = 0 \\
+    0 &= -\alpha \pmb{w}^T + \beta(\pmb{\tau}^T -\pmb{w^T \Phi^T}) \pmb{\Phi}  \\
+    0 &= -\alpha \pmb{w}^T + \beta(\pmb{\tau}^T\pmb{\Phi}  -\pmb{w^T \Phi^T}\pmb{\Phi} )  \\
+    0 &= -\alpha \pmb{w}^T + \beta\pmb{\tau}^T\pmb{\Phi}  -\beta\pmb{w^T \Phi^T}\pmb{\Phi}  \\
+    \text{Gathering all the w terms together:} && \\
+    \alpha \pmb{w}^T +\beta\pmb{w^T \Phi^T}\pmb{\Phi} &= \frac{\beta}{2}\pmb{\tau}^T\pmb{\Phi}    \\
+   \pmb{w}^T (\alpha\mathcal{I} +\beta\pmb{\Phi^T}\pmb{\Phi}) &= \beta\pmb{\tau}^T\pmb{\Phi}    \\
+   \text{Taking the transpose on both sides:} && \\
+   (\alpha\mathcal{I} +\beta\pmb{\Phi^T}\pmb{\Phi})\pmb{w} &= \beta\pmb{\Phi}^T \pmb{\tau}   \\
+   \pmb{w_{MAP}} &= (\alpha\mathcal{I} +\beta\pmb{\Phi^T}\pmb{\Phi})^{-1}\beta\pmb{\Phi}^T \pmb{\tau} 
+\end{align*}{}
+
+\subsection*{h}
+We can substitute  $\pmb{\tau :=At} $ and $\pmb{\Phi :=A\Psi}$ into the equation for $\pmb{w_{MAP}}$:
+
+\begin{align*}
+    \pmb{w_{MAP}} &= (\alpha\mathcal{I} +\beta\pmb{\Phi^T}\pmb{\Phi})^{-1}\beta\pmb{\Phi}^T \pmb{\tau} \\
+    &= (\alpha\mathcal{I} +\beta\pmb{(A\Psi)^T}\pmb{A\Psi})^{-1}\beta\pmb{A\Psi}^T \pmb{At} \\
+    &= (\alpha\mathcal{I} +\beta\pmb{\Psi^TA^T}\pmb{A\Psi})^{-1}\beta\pmb{A\Psi}^T \pmb{At} \\
+    \text{Since we had also substituted $D^{-1}$ with $\beta$, we can add $D^{-1}$ back}\\
+    &= (\alpha\mathcal{I} +D^{-1}\pmb{\Psi^TA^T}\pmb{A\Psi})^{-1}D^{-1}\pmb{A\Psi}^T \pmb{At} \\
+    &= (\alpha\mathcal{I} +\pmb{\Psi^T\Omega^{-1}\Psi})^{-1}\pmb{\Psi}^T \pmb{\Omega^{-1} t} \\
+\end{align*}{}
+
+\bigskip
+\section*{ML Estimate of Angle Measurement}
+We are given that \textit{s, c} are measurements for sine and cosine respectively.\\
+The standard deviation is given to be $\sigma$
+Let $\cos{\theta}$ and $\sin{\theta}$ be the mean for \textit{c} and \textit{s} respectively.
+
+Using univariate Gaussian, the following can be modelled:
+\begin{align*}
+    p(D|\theta) = \mathcal{N}(x|\mu, \sigma) &= \prod_{i=1}^{N}\mathcal{N}(x_i|\theta_i, \sigma) \text{\ where \ } x_i \in \{ c_i, s_i \}; \theta_i \in \{ \cos{\theta}, \sin{\theta} \} \\
+    &= \prod_{i=1}^{N}\frac{1}{\sqrt{2\pi\sigma}}exp\left\{-\frac{1}{2\sigma}(c_{i} - \cos{\theta})^2 \right\}  \frac{1}{\sqrt{2\pi\sigma}}exp\left\{-\frac{1}{2\sigma}(s_{i} - \sin{\theta})^2\right\} \\
+    &= \left[\frac{1}{(2\pi\sigma)^{N/2}}exp\left\{-\frac{1}{2\sigma}\sum_{i=1}^{N}(c_{i} - \cos{\theta})^2\right\}\right] \left[\frac{1}{(2\pi\sigma)^{N/2}}exp\left\{-\frac{1}{2\sigma}\sum_{i=1}^{N}(s_{i} - \sin{\theta})^2\right\}\right] \\
+\end{align*}{}
+
+Taking the logarithm on both sides and gathering irrelevant constants into C, where $ C = -\frac{N}{2}\ln(2\pi\sigma)  -\frac{N}{2}\ln(2\pi\sigma)$:
+\begin{align*}
+    \ln(p(D|\theta)) &= -\frac{N}{2}\ln(2\pi\sigma) -\frac{1}{2\sigma}\sum_{i=1}^{N}(c_i - \cos{\theta})^2  -\frac{N}{2}\ln(2\pi\sigma) -\frac{1}{2\sigma}\sum_{i=1}^{N}(s_i - \sin{\theta})^2 \\
+    &= -\frac{1}{2\sigma}\sum_{i=1}^{N}(c_i - \cos{\theta})^2 -\frac{1}{2\sigma}\sum_{i=1}^{N}(s_i - \sin{\theta})^2 + C \\
+\end{align*}{}
+
+Partially differentiating with respect to $\theta$:
+\begin{align*}
+    \frac{\partial \ln{p(D|\theta)}}{\partial \theta} &= \frac{\partial(-\frac{1}{2\sigma}\sum_{i=1}^{N}(c_i - \cos{\theta})^2 -\frac{1}{2\sigma}\sum_{i=1}^{N}(s_i - \sin{\theta})^2 + C)}{\partial \theta} \\
+    &= -\frac{1}{2\sigma}\sum_{i=1}^{N}(c_i - \cos{\theta})(\sin{\theta})(2) -\frac{1}{2\sigma}\sum_{i=1}^{N}(s_i - \sin{\theta})(\cos{\theta})(2) \\
+    &= -\frac{1}{\sigma}\sum_{i=1}^{N}(c_i\sin{\theta} - \cos{\theta}\sin{\theta}) -\frac{1}{\sigma}\sum_{i=1}^{N}(s_i\cos{\theta} - \sin{\theta}\cos{\theta}) \\
+    &= -\frac{1}{\sigma}\left[\sum_{i=1}^{N}(c_i\sin{\theta} - \cos{\theta}\sin{\theta}) - \sum_{i=1}^{N}(s_i\cos{\theta} - \sin{\theta}\cos{\theta})\right] \\
+    &= -\frac{1}{\sigma}\left[\sum_{i=1}^{N}(c_i\sin{\theta} - \cos{\theta}\sin{\theta} - s_i\cos{\theta} + \sin{\theta}\cos{\theta})\right] \\
+    &= -\frac{1}{\sigma}\left[\sum_{i=1}^{N}(c_i\sin{\theta} - s_i\cos{\theta})\right] \\
+\end{align*}{}
+
+Setting the equation to 0 and solving for $\theta$:
+\begin{align*}
+     -\frac{1}{\sigma}\sum_{i=1}^{N}(c_i\sin{\theta} - s_i\cos{\theta}) &= 0\\
+    -\sum_{i=1}^{N}(c_i\sin{\theta} - s_i\cos{\theta}) &= 0\\
+    \sum_{i=1}^{N}(s_i\cos{\theta}) &= \sum_{i=1}^{N}(c_i\sin{\theta}) \\
+    \cos{\theta}\sum_{i=1}^{N}(s_i)\ &= sin{\theta}\sum_{i=1}^{N}(c_i)\\
+    \frac{\sin{\theta}}{\cos{\theta}} &= \frac{\sum_{i=1}^{N}(s_i)}{\sum_{i=1}^{N}(c_i)}\\
+    \tan{\theta} &= \frac{\sum_{i=1}^{N}(s_i)}{\sum_{i=1}^{N}(c_i)}\\
+    \theta &= \arctan\frac{\sum_{i=1}^{N}(s_i)}{\sum_{i=1}^{N}(c_i)}\\
+\end{align*}{}
+\bigskip
+
+\section*{ML and MAP Solution of Poisson Fit}
+\subsection*{a}
+The probability density function for a Poission Distribution with a parameter $\lambda$ is given by:
+
+\begin{align*}
+    p(x|\lambda) = \frac{\lambda^{x}e^{-\lambda}}{x!}
+\end{align*}{}
+
+The parameter $\lambda$ can then be estimated by the function:
+\begin{align*}
+    \lambda_{ML} &= argmax_{\lambda \in (0, \infty)} \{p(D|\lambda)\}
+\end{align*}{}
+
+Thus the likelihood can be then modeled as:
+\begin{align*}
+    p(D|\lambda) &= p(\{x_i \}_{i=1}^{N}|\lambda) \\
+    &= \prod_{i=1}^{N}p(x_i|\lambda) \\
+    &= \prod_{i=1}^{N}\frac{\lambda^{x}e^{-\lambda}}{x!}\\
+    &= \frac{\lambda^{\sum_{i=1}^{N}x_i}e^{-n\lambda}}{\sum_{i=1}^{N} x_{i}!} \\
+\end{align*}{}
+
+Taking the logarithm, followed by derivative on both sides:
+\begin{align*}
+    \ln(p(D|\lambda)) &= \ln\left(\frac{\lambda^{\sum_{i=1}^{N}x_i}e^{-n\lambda}}{\sum_{i=1}^{N} x_{i}!}\right) \\
+    &= \sum_{i=1}^{N}x_i\ln(\lambda) - n\lambda - \sum_{i=1}^{N} x_{i}!\\
+    \frac{\partial(\ln p(D|\lambda))}{\lambda} &= \frac{1}{\lambda}\sum_{i=1}^{N}x_i - n = 0 \\ \frac{1}{\lambda}\sum_{i=1}^{N}x_i &= n \\
+    \lambda = \frac{1}{n}\sum_{i=1}^{N}x_i
+\end{align*}{}
+
+\subsection*{b}
+The prior is given to be: $p(\lambda) \propto exp(-\lambda/a)$ and the likelihood is $p(D|\lambda)$. All together:
+
+\begin{align*}
+    p(\lambda| D) &= \frac{p(D|\lambda)p(\lambda)}{p(D)} \propto p(D|\lambda)p(\lambda)\\
+    \ln(p(\lambda| D))&= \ln(p(D|\lambda)) + \ln(p(\lambda)) \\
+    &= \ln(\lambda)\sum_{i=1}^{N}x_i - n\lambda - \sum_{i=1}^{N} x_{i}! + ln(e^{-\lambda/a}) \\
+    &= \frac{1}{\lambda}\sum_{i=1}^{N}x_i - n -\frac{1}{a}\\
+    \lambda &=  \sum_{i=1}^{N}x_i\left(\frac{1}{n} + a \right)
+\end{align*}{}
+
+\subsection*{c}
+As n increases, both the numerator and denominator approach infinity in prior and likelihood cases. As a approaches infinity, the prior gets larger and larger and approaches 1. Similarly, as a approaches 0, the prior gets smaller and smaller and approaches 0
+\end{document}
