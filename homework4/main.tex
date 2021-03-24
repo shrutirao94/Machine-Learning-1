@@ -1,0 +1,299 @@
+\documentclass[a4paper]{article} 
+\input{head}
+\usepackage{bm}
+\begin{document}
+
+%-------------------------------
+%	TITLE SECTION
+%-------------------------------
+
+\fancyhead[C]{}
+\hrule \medskip % Upper rule
+\begin{minipage}{0.295\textwidth} 
+\raggedright
+\footnotesize
+SHRUTI RAO \hfill\\   
+2636454 \hfill\\
+s2.rao@student.vu.nl
+\end{minipage}
+\begin{minipage}{0.4\textwidth} 
+\centering 
+\large 
+Homework Assignment 4\\ 
+\normalsize 
+Machine Learning 1, 19/20\\ 
+\end{minipage}
+\begin{minipage}{0.295\textwidth} 
+\raggedleft
+\today\hfill\\
+\end{minipage}
+\medskip\hrule 
+\bigskip
+
+%-------------------------------
+%	CONTENTS
+%-------------------------------
+
+\section*{Mixture of Experts}
+\subsection*{1}
+The likelihood for the entire dataset is given by:
+\begin{align*}
+    p(y_{n}|\pmb{x}_{n}, \pmb{\Theta}, \pmb{\Phi}) &= \prod_{n=1}^{N} \sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n}, \pmb{\theta}_{k} = \pmb{\Theta z}_{n}) p(z_{n}=k| \pmb{x}_{n}, \pmb{\Phi}) \\
+    &= \prod_{n=1}^{N} \sum_{k=1}^{K} \pi_{nk} Exponential(y_{n}|\lambda = exp(\pmb{\theta}_{k}^{T}, \pmb{x}_{n}))
+\end{align*}{}
+
+Since $Exponential(y_{n}|\lambda = \lambda exp(-\lambda y))$:
+
+\begin{align*}
+    &= \prod_{n=1}^{N} \sum_{k=1}^{K} \pi_{nk} exp(\pmb{\theta}_{k}^{T} \pmb{x}_{n}) exp(-exp(\pmb{\theta}_{k}^{T} \pmb{x}_{n})y_{n})
+\end{align*}{}
+
+Taking the log on both sides:
+\begin{align*}
+    \ln{p(y_{n}|\pmb{x}_{n}, \pmb{\Theta}, \pmb{\Phi})} &= \ln{\prod_{n=1}^{N} \sum_{k=1}^{K} \pi_{nk} exp(\pmb{\theta}_{k}^{T} \pmb{x}_{n}) exp(-exp(\pmb{\theta}_{k}^{T} \pmb{x}_{n})y_{n})} \\
+    &= \sum_{n=1}^{N} \ln{\sum_{k=1}^{K} \pi_{nk} e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})} exp(-e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})y_{n}}}) \\
+\end{align*}{}
+
+\subsection*{2}
+The formula for posterior in general is given by:
+\begin{align*}
+    P(w | \mathcal{D}) &= \frac{P(\mathcal{D} | w)P(w)}{P(\mathcal{D})} 
+\end{align*}{}
+
+The posterior probability $r_{ni}$ of expert $i$ producing label $y$ for datapoint $n$ is given by:
+
+\begin{align*}
+    r_{ni} &= \frac{p(z_{n}=i| \pmb{x}_{n}, \pmb{\Phi}) p(y_{n}|\pmb{x}_{n}, \pmb{\theta}_{k} = \pmb{\Theta z}_{n})}{p(y_{n}|\pmb{x}_{n}, \pmb{\Theta}, \pmb{\Phi})} \\
+    &= \frac{\pi_{ni}.exp(-exp(\pmb{\theta}_{k}^{T} \pmb{x}_{n})y_{n})}{\sum_{i=1}\pi_{ni}.exp(-exp(\pmb{\theta}_{k}^{T} \pmb{x}_{n})y_{n})}
+\end{align*}{}
+
+
+
+\subsection*{3}
+Rewriting the log-likelihood equation in terms of its probability functions we get:
+\begin{align*}
+    \ln{p(y|\pmb{x}, \pmb{\Theta}, \pmb{\Phi})} &= \sum_{n=1}^{N} \ln{\sum_{k=1}^{K} \pi_{nk} e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})} exp(-e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})y_{n}}}) \\
+    &= \sum_{n=1}^{N} \ln{\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n},z_{n}, \pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+\end{align*}{}
+
+
+First, we take the derivative with respect to $\pmb{\theta}_{i}$:
+
+\begin{align*}
+    \frac{\partial L}{\partial \pmb{\theta}_{i}} &= \frac{\partial}{\partial \pmb{\theta}_{i}} \left[
+    \sum_{n=1}^{N} \ln{\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n}, z_{n},\pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    \right] \\
+    &= \sum_{n=1}^{N} \left[ \frac{\frac{\partial}{\partial \pmb{\theta}_{i}}\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n},z_{n}, \pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    {\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n},z_{n}, \pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    \right] \\
+    &= \sum_{n=1}^{N} \left[ \frac{ p(y_{n}|\pmb{x}_{n}, z_{n}, \pmb{\Theta}) p(z_{n}=i|\pmb{x}_{n}, \pmb{\Phi})}
+    {\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n}, z_{n}, \pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    \right]
+\end{align*}{}
+
+From 1.2, we know that: $r_{ni} = \frac{p(z_{n}=i| \pmb{x}_{n}, \pmb{\Phi}) p(y_{n}|\pmb{x}_{n}, z_{n}, \pmb{\Theta})}{p(y_{n}|\pmb{x}_{n}, \pmb{\Theta}, \pmb{\Phi})}$. Moreover, using the fact that: $\frac{\partial f(x)}{\partial x} = f(x)\frac{\partial \ln{f(x)}}{\partial x}$, we can re-write the equation as:
+
+\begin{align*}
+    &= \sum_{n=1}^{N} \left[ \frac{ p(y_{n}|\pmb{x}_{n}, z_{n}, \pmb{\Theta}) p(z_{n}=i|\pmb{x}_{n}, \pmb{\Phi})}
+    {\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n}, z_{n}, \pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    \right] \\
+    &= \sum_{n=1}^{N} r_{ni} \frac{\partial}{\partial \pmb{\theta}_{i}} \left[ \ln{p(y_{n}|\pmb{x}_{n}, z_{n}, \pmb{\Theta})}\right]
+\end{align*}{}
+
+Next, we take the derivative with respect to $\pmb{\phi}_{i}$:
+\begin{align*}
+    \frac{\partial L}{\partial \pmb{\phi_{i}}} &= \frac{\partial}{\partial \pmb{\phi}_{i}} \left[
+    \sum_{n=1}^{N} \ln{\sum_{k=1}^{k} p(y_{n}|\pmb{x}_{n}, z_{n},\pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    \right] \\
+    &= \sum_{n=1}^{N} \frac{\partial}{\partial \pmb{\phi_{i}}} \ln \left[{\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n}, z_{n},\pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi}) }\right]\\
+    &= \sum_{n=1}^{N} \left[ \frac{\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n},z_{n}, \pmb{\Theta}) \frac{\partial}{\partial \pmb{\phi}_{i}} p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    {\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n},z_{n}, \pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    \right] \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} \left[ \frac{ p(y_{n}|\pmb{x}_{n},z_{n}, \pmb{\Theta})  p(z_{n}=i|\pmb{x}_{n}, \pmb{\Phi})}
+    {\sum_{k=1}^{K} p(y_{n}|\pmb{x}_{n},z_{n}, \pmb{\Theta}) p(z_{n}=k|\pmb{x}_{n}, \pmb{\Phi})}
+    \right] \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\frac{\partial}{\partial \pmb{\phi}_{i}} \left[\ln{p(z_{n}=i|\pmb{x}_{n},\pmb{\Phi})}\right]
+\end{align*}{}
+
+
+
+\subsection*{4}
+For the derivative with respect to theta $\frac{\partial L}{\partial \pmb{\theta_{i}}}$:
+\begin{align*}
+    \frac{\partial L}{\partial \pmb{\theta}_{i}} &= \sum_{n=1}^{N} r_{ni} \frac{\partial}{\partial \pmb{\theta}_{i}} \left[ \ln{p(y_{n}|\pmb{x}_{n}, z_{n}, \pmb{\Theta})}\right] \\
+    &= \sum_{n=1}^{N} r_{ni} \frac{\partial}{\partial \pmb{\theta}_{i}} \left[ 
+    \sum_{k=1}^{K} \ln{e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})} exp(-e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})y_{n}}}) 
+    \right] \\
+    &= \sum_{n=1}^{N} r_{ni}\frac{\partial}{\partial \pmb{\theta}_{i}} \left[ 
+    \sum_{k=1}^{K} \pmb{\theta}_{k}^{T} \pmb{x}_{n} - e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})}y_{n}
+    \right] \\
+    &= \sum_{n=1}^{N} r_{ni}  \left[ \frac{\partial}{\partial \pmb{\theta}_{i}}\sum_{k=1}^{K} \pmb{\theta}_{k}^{T} \pmb{x}_{n}\right] -
+    \left[\frac{\partial}{\partial \pmb{\theta}_{i}}\sum_{k=1}^{K} e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})}y_{n}\right]\\
+    &= \sum_{n=1}^{N} r_{ni} \left[\pmb{x}_{n}^{T} - \pmb{x}_{n}^{T}e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})}y_{n}\right]\\
+    &=\sum_{n=1}^{N} r_{ni}\pmb{x}_{n}^{T}\left[1 - e^{(\pmb{\theta}_{k}^{T} \pmb{x}_{n})}y_{n}\right]
+\end{align*}{}
+
+
+For the derivative with respect to $\pmb{\phi}_{i}$:
+\begin{align*}
+    \frac{\partial L}{\partial \pmb{\phi}_{i}} &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\frac{\partial}{\partial \pmb{\phi}_{i}} \left[\ln{p(z_{n}=i|\pmb{x}_{n},\pmb{\Phi})}\right] \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\frac{\partial}{\partial \pmb{\phi}_{i}} \left[
+    \ln{\frac{e^{\pmb{\Phi_{i}^{T}x_{n}}}}{\sum_{j}e^{\pmb{\Phi_{i}^{T}x_{n}}}}}
+    \right] \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\frac{\partial}{\partial \pmb{\phi}_{i}} \left[\pmb{\Phi_{i}^{T}x_{n}} - \ln{\sum_{j} e^{\pmb{\Phi_{i}^{T}x_{n}}}}
+     \right] \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\frac{\partial}{\partial \pmb{\phi}_{i}} \left[\pmb{\Phi_{i}^{T}x_{n}}\right] - 
+    \frac{\partial}{\partial \pmb{\phi}_{i}} \left[\ln{\sum_{j} e^{\pmb{\Phi_{i}^{T}x_{n}}}}\right] \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\left[x_{n}^{T} \right] - \frac{\partial}{\partial \pmb{\phi}_{i}} \left[\ln{\sum_{j} e^{\pmb{\Phi_{i}^{T}x_{n}}}}\right] \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\left[x_{n}^{T} \right] - \left[\frac{e^{\pmb{\Phi_{i}^{T}x_{n}}}}{\sum_{j}e^{\pmb{\Phi_{j}^{T}x_{n}}}}\right][\pmb{x}_{n}^{T}] \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\left[x_{n}^{T} \right] \left[ 1 - \frac{e^{\pmb{\Phi_{i}^{T}x_{n}}}}{\sum_{j}e^{\pmb{\Phi_{j}^{T}x_{n}}}}\right]
+    \text{or}\\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} r_{ni}\left[x_{n}^{T} \right] \left[ 1 - p(z_{n}=i|\pmb{x}_{n}, \pmb{\Phi})\right]
+\end{align*}{}
+
+\section*{Quadratic Discriminant Analysis}
+\subsection*{1}
+The probability density function for a multivariate gaussian is given by:
+\begin{align*}
+    f(x) = \frac{1}{\sqrt{(2\pi)^{d}|\Sigma|_{k}}}exp\left\{
+    \frac{-(x-\mu_{k})^{T}\Sigma^{-1}_{k}(x-\mu_{k})}{2}
+    \right\}
+\end{align*}
+
+The prior $p(\mathcal{C}) = \pi_{k}$ and thus the joint probability is altogether given by:
+\begin{align*}
+    p(\pmb{x}_{n}|\pmb{\mathcal{C}_{k}}) &= \frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}exp\left\{
+    \frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}
+    \right\}\pi_{k}\\
+\end{align*}{}
+
+\subsection*{2}
+The likelihood is given by:
+\begin{align*}
+    p(\pmb{T}, \pmb{X}|\pmb{\pi}_{1},...,\pmb{\pi}_{K}, \pmb{\mu}_{1},..,\pmb{\mu}_{K}, \pmb{\Sigma}_1,...,\pmb{\Sigma}_{K}) &= \prod_{n=1}^{N} \prod_{k=1}^{K} \left({\frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}exp\left\{
+    \frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}
+    \right\}\pi_{k}}\right)^{\mathcal{I}({t_{n}=k})}\\
+\end{align*}{}
+
+The log likelihood is then given by:
+\begin{align*}
+     \ln{p(\pmb{T}, \pmb{X}|\pmb{\pi}_{1},...,\pmb{\pi}_{K}, \pmb{\mu}_{1},..,\pmb{\mu}_{K}, \pmb{\Sigma}_1,...,\pmb{\Sigma}_{K})} &= \ln{\prod_{n=1}^{N} \prod_{k=1}^{K} \left({\frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}exp\left\{
+    \frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}
+    \right\}\pi_{k}}\right)^{I(t_{n}=k)}} \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K}\ln{ \left({\frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}exp\left\{
+    \frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}
+    \right\}\pi_{k}}\right)} \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} \ln{ \left({\frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}}\right) -
+    \left(\frac{(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}\right) + 
+    \ln{(\pi_{k}})} \\
+\end{align*}{}
+
+\subsection*{3}
+The equality constraint is given by: $\sum_{k}^{K} \pi_{k} = 1$
+The Lagrangian is therefore given by:
+
+\begin{align*}
+    \mathcal{L} &= \ln{p(\pmb{T}, \pmb{X}|\pmb{\pi}_{1},...,\pmb{\pi}_{K}, \pmb{\mu}_{1},..,\pmb{\mu}_{K}, \pmb{\Sigma}_1,...,\pmb{\Sigma}_{K})} + \lambda[1 - \sum_{k}^{K} \pi_{k} ]\\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} \ln{ \left({\frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}}\right)
+    \left(
+    \frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}
+    \right) + \ln{(\pi_{k}})} + \lambda \left[1 - \sum_{k}^{K}\pi_{k} \right]\\
+    &= \sum_{n=1}^{N}\sum_{k=1}^{K} \ln{ \left({\frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}}\right)
+    \left(\frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}\right) + \ln{(\pi_{k}})} + \lambda - \lambda \sum_{k}^{K} \pi_{k} \\
+\end{align*}{}
+
+\subsection*{4}
+The partial derivative of the Lagrangian with respect to $\pi_{k}$ is:
+
+\begin{align*}
+    \frac{\partial \mathcal{L}}{\partial \pi_{k}} &= \frac{\partial}{\partial \pi_{k}} \sum_{n=1}^{N} \sum_{k=1}^{K} \ln{ \left({\frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}}\right)
+    \left(\frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}\right) + \ln{(\pi_{k}})} + \lambda - \lambda \sum_{k}^{K} \pi_{k} \\
+    &= \frac{\partial}{\partial \pi_{k}} \sum_{n=1}^{N} \sum_{k=1}^{K}
+    \ln{(\pi_{k}}) - \lambda \sum_{k}^{K} \pi_{k} \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} (\frac{1}{\pi_{k}}) - \lambda K \\
+   0 &= \frac{NK}{\pi_{k}} - \lambda K  \\
+   \frac{NK}{\pi_{k}} &= \lambda K  \\
+   \pi_{k} &= \frac{N}{\lambda}
+\end{align*}{}
+
+
+\subsection*{5}
+The partial derivative of the Lagrangian with respect to $\mu_{k}$ is:
+
+\begin{align*}
+    \frac{\partial \mathcal{L}}{\partial \mu_{k}} &= \frac{\partial}{\partial \mu_{k}} \sum_{n=1}^{N} \sum_{k=1}^{K} \left(\frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}\right)\\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} \frac{\partial}{\partial \mu_{k}}  \left(\frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}\right)\\
+    \text{Using } \frac{\partial}{\partial x} x^{T}Ax = x^{T}(A^{T} + A) \\
+    0 &= \sum_{n=1}^{N} \sum_{k=1}^{K} -\frac{1}{2}(\pmb{x} - \mu_{k})^{T}(\pmb{\Sigma}^{-T}_{k} + \pmb{\Sigma}^{-1}_{k}) \\
+   0 &= - \sum_{n=1}^{N} \sum_{k=1}^{K} (\pmb{x}^T - \mu_{k}^{T})(\pmb{\Sigma}^{-T}_{k} + \Sigma^{-1}_{k}) \\
+    0 &= -\sum_{n=1}^{N} \sum_{k=1}^{K} \pmb{x}^T (\pmb{\Sigma}^{-T}_{k} + \pmb{\Sigma}^{-1}_{k}) - \mu_{k}^{T}(\pmb{\Sigma}^{-T}_{k} + \pmb{\Sigma}^{-1}_{k}) \\
+    &= -\sum_{n=1}^{N} \sum_{k=1}^{K} \pmb{x}^T \Sigma^{-T}_{k} + \pmb{x}^T \pmb{\Sigma}^{-1}_{k} - \mu_{k}^{T}\pmb{\Sigma}^{-T}_{k} - \mu_{k}^{T}\pmb{\Sigma}^{-1}_{k} \\
+    &= -\sum_{n=1}^{N} \sum_{k=1}^{K} \pmb{x}^T \pmb{\Sigma}^{-T}_{k} -\sum_{n=1}^{N} \sum_{k=1}^{K}\pmb{x}^T \pmb{\Sigma}^{-1}_{k} + \sum_{n=1}^{N} \sum_{k=1}^{K}\mu_{k}^{T}\pmb{\Sigma}^{-T}_{k} + \sum_{n=1}^{N} \sum_{k=1}^{K}\mu_{k}^{T}\pmb{\Sigma}^{-1}_{k} \\
+    \sum_{n=1}^{N} \sum_{k=1}^{K}\mu_{k}^{T}\pmb{\Sigma}^{-T}_{k} + \sum_{n=1}^{N} \sum_{k=1}^{K}\mu_{k}^{T}\pmb{\Sigma}^{-1}_{k} &=
+    \sum_{n=1}^{N} \sum_{k=1}^{K} \pmb{x}^T \pmb{\Sigma}^{-T}_{k} + \sum_{n=1}^{N} \sum_{k=1}^{K}\pmb{x}^T \pmb{\Sigma}^{-1}_{k} \\
+    \sum_{n=1}^{N}\sum_{k=1}^{K}\mu_{k}^{T}(\pmb{\Sigma}^{-T}_{k} + \pmb{\Sigma}^{-1}_{k}) &= \sum_{n=1}^{N} \sum_{k=1}^{K} \pmb{x}^T ( \pmb{\Sigma}^{-T}_{k} + \pmb{\Sigma}^{-1}_{k}) \\
+    \mu_{k} = x
+\end{align*}{}
+
+\subsection*{6}
+The partial derivative of the Lagrangian with respect to $\Sigma_{k}$ is:
+
+\begin{align*}
+    \frac{\partial \mathcal{L}}{\partial \Sigma_{k}} &= \frac{\partial}{\partial \pmb{\Sigma}_{k}} \sum_{n=1}^{N} \sum_{k=1}^{K} \ln{ \left({\frac{1}{\sqrt{(2\pi)^{d}|\pmb{\Sigma}|_{k}}}}\right)}
+    \left(\frac{-(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}\right)\\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K}\frac{\partial}{\partial \Sigma_{k}}  \ln{((2\pi)^{d}|\pmb{\Sigma}|_{k})^{-\frac{1}{2}}} - \frac{\partial}{\partial \pmb{\Sigma}_{k}} \left(\frac{(\pmb{x}-\mu_{k})^{T}\pmb{\Sigma}^{-1}_{k}(\pmb{x}-\mu_{k})}{2}\right) \\
+    &=\sum_{n=1}^{N} \sum_{k=1}^{K} -\frac{1}{2} (\ln{(2\pi)^{d}|\pmb{\Sigma}|_{k}}) ^{\frac{-1}{2}} - \frac{1}{2}(\pmb{x}-\mu_{k})^{T}(\pmb{x}-\mu_{k})\\
+    &= -\sum_{n=1}^{N} \sum_{k=1}^{K} \frac{1}{2} (\ln{(2\pi)^{d}|\pmb{\Sigma}|_{k}}) ^{\frac{-1}{2}} - \sum_{n=1}^{N} \sum_{k=1}^{K}\frac{1}{2}(\pmb{x}-\mu_{k})^{T}(\pmb{x}-\mu_{k})\\
+    \sum_{n=1}^{N} \sum_{k=1}^{K} \frac{1}{2} (\ln{(2\pi)^{d}|\pmb{\Sigma}|_{k}}) ^{\frac{-1}{2}} &= - \sum_{n=1}^{N} \sum_{k=1}^{K}\frac{1}{2}(\pmb{x}-\mu_{k})^{T}(\pmb{x}-\mu_{k})\\
+    \text{Using equation 2.122 from Bishop 2.3.4:}\\
+    \Sigma_{k} &= \frac{1}{2}\sum_{n=1}^{N}\sum_{k=1}^{K}(\pmb{x}-\mu_{k})(\pmb{x}-\mu_{k})^{T}
+\end{align*}{}
+
+\subsection*{7}
+$\pi_{k}$ equals to the total N divided by the lagrange multplier.
+$\mu_{k}$ the mean of the estimate is the observed data point itself.
+Finally, the $\Sigma_{k}$ depends on the symmetric difference between the observed data points and the means.
+
+
+\section*{Principal Component Analysis}
+
+\subsection*{1}
+The projection $z_{ni}$ is given by:
+
+\begin{align*}
+    z_{ni} &= u_{i}^{T}x_{n}
+\end{align*}{}
+
+
+\subsection*{2}
+The empirical mean of the projection $z_{i}$ across all points is given by:
+
+\begin{align*}
+    \Bar{z_{i}} &= u_{i}^{T}x_{n}
+\end{align*}{}
+
+
+\subsection*{3}
+The empirical variance of the projection $z_{i}$ in terms of covariance matrix $\mathcal{S}$ is given by:
+
+\begin{align*}
+    Var(z_{i}) &= \frac{1}{N}\sum_{n=1}^{N}\left \{u_{i}^{T}x_{n} - u_{i}^{T} \Bar{z_{i}} \right\} \\
+    &= u_{i}^{T}\mathcal{S}u_{i}
+\end{align*}{}
+
+
+\subsection*{4}
+\begin{align*}
+    Var(z_{i}) &= u_{i}^{T}\mathcal{S}u_{i} \\
+    \text{Since } \mathcal{S} = U\Lambda U^{T}\\
+     Var(z_{i}) &= u_{i}^{T}U\Lambda U^{T}u_{i} \\
+     &= \lambda_{i}
+\end{align*}{}
+
+\subsection*{5}
+
+Reducing dimensionality from D to K such that 99\% of variance is maintained by picking a K such that the proportion of variance explained is the highest:
+\begin{align*}
+    \frac{\sum_{i=1}^{K}\lambda_{i}}{Tr(\mathcal{S})} &= \frac{\sum_{i=1}^{K}\lambda_{i}}{\sum_{i=1}^{D}\lambda_{i}} > 0.99
+\end{align*}{}
+\end{document}
