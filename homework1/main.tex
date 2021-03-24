@@ -1,0 +1,219 @@
+\documentclass[a4paper]{article} 
+\input{head}
+\begin{document}
+
+%-------------------------------
+%	TITLE SECTION
+%-------------------------------
+
+\fancyhead[C]{}
+\hrule \medskip % Upper rule
+\begin{minipage}{0.295\textwidth} 
+\raggedright
+\footnotesize
+SHRUTI RAO \hfill\\   
+2636454 \hfill\\
+s2.rao@student.vu.nl
+\end{minipage}
+\begin{minipage}{0.4\textwidth} 
+\centering 
+\large 
+Homework Assignment 1\\ 
+\normalsize 
+Machine Learning 1, 19/20\\ 
+\end{minipage}
+\begin{minipage}{0.295\textwidth} 
+\raggedleft
+\today\hfill\\
+\end{minipage}
+\medskip\hrule 
+\bigskip
+
+%-------------------------------
+%	CONTENTS
+%-------------------------------
+
+\section*{Multivariate Calculus}
+\subsection*{Question 2.1.a}
+\begin{align*}
+    \nabla_\mu (x - \mu)^T\sum\ ^{-1}(x-\mu) &= (x^T - \mu^T)(\sum\ ^{-1}x - \sum\ ^{-1}\mu) \\
+    &= x^T\sum\ ^{-1}x - x^T\sum\ ^{-1}\mu - \mu^T\sum\ ^{-1}x + \mu^T\sum\ ^{-1}\mu
+\end{align*}{}
+
+Partially differentiating with respect to $\mu$:
+\begin{align*}
+    \frac{df}{d\mu} &= \frac{df(x^T\sum\ ^{-1}x)}{d\mu} - \frac{df( x^T\sum\ ^{-1}\mu)}{d\mu} - \frac{df(\mu^T\sum\ ^{-1}x)}{d\mu} + \frac{df(\mu^T\sum\ ^{-1}\mu)}{d\mu} \\
+    &= 0 - (x^T\sum\ ^{-1}) - ({\sum\ ^{-1}}^Tx^T) + (\mu^T(\sum\ ^{-1} + {\sum\ ^{-1}}^T )) && \text{since} \frac{df}{dX}(X^TAX) = X^T(A+A^T) \\
+    &= -(x^T\sum\ ^{-1}) - (\sum\ ^{-1}x^T) + (2\mu^T\sum\ ^{-1}) && \text{transpose of inverse is inverse} \\
+    &= -2x^T\sum\ ^{-1} + 2\mu^T\sum\ ^{-1} \\
+    &= -2(x^T - \mu^T)\sum\ ^{-1} 
+\end{align*}{}
+
+
+\subsection*{Question 2.1.b}
+Assuming log to represent natural logarithm:
+\begin{align*}
+    \nabla_q - p^T\ log(q) &= -p^T(q)^Tq^{-1} && \text{since\ }ln(X) = X^TX^{-1}
+\end{align*}
+
+
+\subsection*{Question 2.1.c}
+Given:\\
+$\nabla_{w}f$ \\
+$f\ =\ Wx$ \\
+$W \in \mathbb{R}^{2x3}$ \\
+$x \in \mathbb{R}^3$
+
+Following Example 5.12 we require the gradient of $\frac{df}{dw}$. \\
+The determinant of the gradient is determined to be  $\frac{df}{dw} \in ^{2x(2x3)}$ \\
+Representing the gradient as a collection of partial derivatives:\\
+\begin{align*}
+    \frac{df}{dw} &= \begin{bmatrix}
+    \frac{df_1}{dw} \\
+    \frac{df_2}{dw}
+    \end{bmatrix} && \frac{df_i}{dw} \in \mathbb{R}^{1x(2x3)}
+\end{align*}{}
+
+The matrix vector multiplier is:\\
+\begin{align*} 
+    f_i = \sum_{j=1}^{3} w_{ij}x_{j} && \text{where\ } i = 1,2
+\end{align*}{}
+
+The partial derivatives are then given as: \\
+\begin{align*}
+    \frac{\partial f_i}{\partial w_{iq}} = x_q
+\end{align*}{}
+
+The partial derivative of $f_i$ with respect to a row of W:
+\begin{align*}
+    \frac{\partial f_i}{\partial w_{iq,:}} = x^T \in \mathbb{R}^{1x1x3} \\
+    \frac{\partial f_i}{\partial w_{k \neq i}} = 0^T \in \mathbb{R}^{1x1x3} \\
+\end{align*}{}
+
+Stacking the partial derivatives:
+\begin{align*}
+    \begin{bmatrix}
+        x^T \\
+        0^T \\
+        0^T \\
+        x^T
+    \end{bmatrix} \in \mathbb{R}^{1x(2x3)}
+\end{align*}{}
+\bigskip
+
+\subsection*{Question 2.1.d}
+Given:\\
+$\nabla_{w}f$ \\
+$f\ =\ (\mu-Wx)^T\sum\ ^{-1}(\mu - Wx)$ \\
+$W \in \mathbb{R}^{MxK}$ \\
+
+\begin{align*}
+    (\mu-Wx)^T\sum\ ^{-1}(\mu - Wx) &= (\mu^T-W^Tx^T)(\sum\ ^{-1}\mu - \sum\ ^{-1} Wx)\\
+    &= \mu^T\sum\ ^{-1}\mu - \mu^T\sum\ ^{-1}Wx - W^Tx^T\sum\ ^{-1}\mu + W^Tx^T \sum\ ^{-1} Wx)\\
+\end{align*}{}
+
+Now partially differentiating:
+\begin{align*}
+   &= \frac{\partial d(\mu^T\sum\ ^{-1}\mu)}{dW} - \frac{\partial d(\mu^T\sum\ ^{-1}Wx)}{dW} - \frac{\partial d(W^Tx^T\sum\ ^{-1}\mu)}{dW} + \frac{\partial d(W^Tx^T \sum\ ^{-1} Wx))}{dW} \\
+   &= 0 - (\mu^T\sum\ ^{-1}x) - (x\sum\ ^{-1}\mu^T) + W^T(x^T\sum\ ^{-1}x + x\sum\ ^{-1}x^T) && \text{since\ } \frac{df}{dX}(X^TAX) = X^T(A+A^T) \\
+   &= -2(\mu^T\sum\ ^{-1}x) + 2(W^Tx^T\sum\ ^{-1}x) \\
+   &= -2(\mu^T - W^Tx^T)\sum\ ^{-1}x
+\end{align*}{}
+
+
+
+
+
+\section*{Probability Theory}
+\subsection*{Question 3.1.a}
+The likelihood or degree of plausibility of a robbery, given that the man just climbed through the broken window of a jewellery store is quite high. This high likelihood is implied by the presence of conditions - \textit{man running}, \textit{a bag}, \textit{a broken window},  \textit{jewellery store} and \textit{night time conditions}. Finally, previous knowledge of a man running at nighttime from a jewellery store with a bag being known as a criminal can further improve the likelihood of this resulting to be a criminal.
+
+
+\subsection*{Question 3.1.b}
+The following notation can be formalized: \\
+$O$ where $O$ is a random variable that determines if person made observation that it is a criminal \\
+$C = \{c, nc\}$ where $C$ is a random variable that determines if person is criminal or not; $c$ indicates criminal; $nc$ indicates not criminal \\
+
+Based on the given information: \newline
+probability of being a criminal: $P(C=c) = 1/10^5$ \\
+probability of not being a criminal: $P(C=nc) = 1 - 1/10^5$ \\
+
+
+Based on the problem statement and using the Bayesian Rule: \\
+\begin{enumerate}
+    \item Probability of making observation that man is a criminal and man turns out to be a criminal: 
+    \begin{align*}
+        p(O | C=c) &= \frac{p(C=c | O) * p(O)} {p(C=c)}  \\
+                   &= 0.8
+    \end{align*}{}
+    \item Probability of making observation that man is a criminal when man is not a criminal:
+    \begin{align*}
+        p(O | C=nc) &= \frac{p(C=nc | O) * p(O)} {p(C=nc)} \\
+                    &= \frac{1}{10^6}
+    \end{align*}{} 
+\end{enumerate}
+
+
+\subsection*{Question 3.1.c}
+Given information: \\
+$ p(O | C=c) = 0.8$
+$ p(C=c) = \frac{1}{10^5}$
+$ P(O) = $
+
+We first need to find the probability for making an observation that the man is a criminal: $p(O)$. This can be calculated using the sum and product rules altogether:
+\begin{align*}
+    p(O) &= p(O | C=c) * p(C=c) + p(O | C=nc) * p(C=nc) \\
+         &= 0.8 * \frac{1}{10^5} + \frac{1}{10^6} * (1 - \frac{1}{10^5}) \\
+         &= 0,000008 + 0,000001 \\
+         &= 0,000009\ or\ \frac{9}{10*6}
+\end{align*}{}
+
+Next, we can calculate the probability of the man being a criminal:
+\begin{align*}
+    p(C=c | O) &= \frac{p(O | C=c) * p(C=c)}{p(O)} \\
+               &= \frac{0.8 * \frac{1}{10^5}}{\frac{9}{10^6}} \\
+               &= 0,888888889
+\end{align*}{}
+
+There is 89\% probability that the man observed is indeed a criminal.
+
+\subsection*{Question 3.1.d}
+The belief of original conditions (such as night time, man and jewellery store) are updated to realize that children and morning can be included in judging a robbery. While the two incidents are independent of one another, the probability value calculated in part (c) will more or less remain the same.
+\bigskip
+
+\subsection*{Question 3.2.a}
+The data is modelled with Multinomial Distribution where $\rho_{1}$, $\rho_{2}$, $\rho_{3}$ and $\rho_{4}$ each represent the probability of drawing a card from a suit.
+
+\begin{align*}
+     p(\mathcal{D} | \mu) &= \prod_{x=i}^4 p(x_{i} | \rho) \\
+                          &= \prod Mult(\rho_{1}, \rho_{2}, \rho_{3}, \rho_{4})
+\end{align*}{}
+
+\subsection*{Question 3.2.b}
+\begin{align*}
+    p(X_{1}=4, X_{2}=4) &= (\frac{N!}{X_{1}!\ X_{2}!})* P^N * P^N \\
+                        &= (\frac{8!}{4!\ 4!})* 0.25^8 * 0.25^8 \\
+                        &= 1.62981451e-8
+\end{align*}
+
+\subsection*{Question 3.2.c}
+\begin{align*}
+    p(x, \mu) =  \prod_{k=1}^K \mu_k^{x_k}
+\end{align*}
+
+
+% \subsection*{Question 3.2.d}
+
+% \subsection*{Question 3.2.e}
+
+\subsection*{Question 3.2.f}
+The general form would be:
+\begin{align*}
+   \underset{posterior}{\underbrace{p(\textit{p}|\mathcal{D})}} = \frac{\overset{likelihood}{\overbrace{p(\mathcal{D}|\textit{p})}}.
+   \overset{prior}{\overbrace{p(\textit{p})}}}{\underset{evidence}{\underbrace{p(\mathcal{D}})}}
+\end{align*}
+
+% \subsection*{Question 3.2.g}
+
+
+\end{document}
