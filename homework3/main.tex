@@ -1,0 +1,462 @@
+\documentclass[a4paper]{article} 
+\input{head}
+\usepackage{bm}
+\begin{document}
+
+%-------------------------------
+%	TITLE SECTION
+%-------------------------------
+
+\fancyhead[C]{}
+\hrule \medskip % Upper rule
+\begin{minipage}{0.295\textwidth} 
+\raggedright
+\footnotesize
+SHRUTI RAO \hfill\\   
+2636454 \hfill\\
+s2.rao@student.vu.nl
+\end{minipage}
+\begin{minipage}{0.4\textwidth} 
+\centering 
+\large 
+Homework Assignment 3\\ 
+\normalsize 
+Machine Learning 1, 19/20\\ 
+\end{minipage}
+\begin{minipage}{0.295\textwidth} 
+\raggedleft
+\today\hfill\\
+\end{minipage}
+\medskip\hrule 
+\bigskip
+
+%-------------------------------
+%	CONTENTS
+%-------------------------------
+
+\section*{Naive Bayes Classification}
+\subsection*{1}
+
+
+The data likelihood without any independence assumptions are given by:
+\begin{align*}
+    p(\pmb{T}, \pmb{X} | \pmb{\theta}) &= \prod_{n=1}^{N} p(t_n, \pmb{x}_n|\pmb{\theta})
+\end{align*}{}
+
+
+Further, using the probability rule for Bayes, the data likelihood for the general k
+classes naive Bayes classifier is:
+
+\begin{align*}
+    p(\pmb{T}, \pmb{X} | \pmb{\theta}) &= \prod_{n=1}^{N} p(t_n, \pmb{x}_n|\pmb{\theta}) \\
+    \text{Splitting the expression using the product rule:} \\
+    &= \prod_{n=1}^{N} p(t_n | \pmb{\theta})p(\pmb{x}_n|t_n, \pmb{\theta}) \\ 
+    &= \prod_{n=1}^{N} \prod_{k=1}^{K} p(t_n = k| \pmb{\theta})p(\pmb{x}_n|t_n = k, \pmb{\theta}) ^{\mathcal{I}(t_n=k)}\\
+    \text{Assuming the Naive Bayes assumption of product over D:}\\
+    &= \prod_{n=1}^{N} \prod_{k=1}^{K}\left ( \pi_k \prod_{d=1}^{D} p(\pmb{x}_{nd}|C_k, \theta_{dk}) \right) ^{\mathcal{I}(t_n=k)}\\
+\end{align*}{}
+
+
+\subsection*{2}
+
+The Naive Bayes assumption of conditional independence reduces number of parameters changes to $2n$. The conditional independence assumption is naive because it can rarely be applicable in real life scenarios except for the few cases wherein Naive Bayes performs extremely well. The Naive Bayes assumption will fail when the predictors are dependent on one another, but get ignored by Naive Bayes. For example, when predicting probability of a person being hired, the predictor variables include age, experience, education level. Here experience and age and education level all depend on each other and influence each other. This influence would be overlooked by Naive Bayes. \url{https://nlp.stanford.edu/IR-book/html/htmledition/properties-of-naive-bayes-1.html}
+
+
+
+\subsection*{3}
+The Bernoulli Distribution is given by:
+\begin{align*}
+    p(\pmb{x}|C_k, \theta_{1k},...,\pmb{theta}_{dk}) = \prod_{d=1}^{D} \theta_{dk}^{x_{d}}(1-\theta_{dk})^{1-x_{nd}}
+\end{align*}{}
+
+Rewriting the data likelihood in terms of this distribution, we get:
+\begin{align*}
+    p(\pmb{T}, \pmb{X} | \pmb{\theta}) &= \prod_{n=1}^{N} \prod_{k=1}^{K}\left (
+    \pi_{k} \prod_{d=1}^{D} \theta_{dk}^{x_{dk}}(1 - \theta_{dk})^{1-\pmb{x}_{nd}}
+    \right)
+\end{align*}{}
+
+The log likelihood is therefore:
+\begin{align*}
+    \ln{p(\pmb{T}, \pmb{X} | \pmb{\theta})} &= \ln{\prod_{n=1}^{N} \prod_{k=1}^{K}\left (
+    \pi_{k} \prod_{d=1}^{D} \theta_{dk}^{x_{nd}}(1 - \theta_{dk})^{1-\pmb{x}_{nd}}
+    \right)} \\
+    &= \sum_{n=1}^{N}\ln{\prod_{k=1}^{K}\left (
+    \pi_{k} \prod_{d=1}^{D} \theta_{dk}^{x_{nd}}(1 - \theta_{dk})^{1-\pmb{x}_{nd}}
+    \right)} \text{ [\bigskip as \ } ln\prod = \sum]\\
+    &= \sum_{k=1}^{K}\sum_{n \in C_k}^{N}\ln{\left (
+    \pi_{k} \prod_{d=1}^{D} \theta_{dk}^{x_{nd}}(1 - \theta_{dk})^{1-\pmb{x}_{nd}}
+    \right)}\\
+    &= \sum_{k=1}^{K}\sum_{n \in C_k}^{N} \left ( \ln{\pi_{k}} + \sum_{d=1}^{D}\pmb{x}_{nd}\ln{\theta_{dk}} +
+    (1-\pmb{x}_{nd})\ln{(1 - \theta_{dk})} \right )\\
+\end{align*}{}
+
+\subsection*{4}
+
+\begin{align*}
+    \ln{p(\pmb{T}, \pmb{X} | \pmb{\theta})} &= \sum_{k=1}^{K}\sum_{n \in C_k}^{N} \left ( \ln{\pi_{k}} + \sum_{d=1}^{D}\pmb{x}_{nd}\ln{\theta_{dk}} +
+    (1-\pmb{x}_{nd})\ln{(1 - \theta_{dk})} \right )\\
+    \text{Taking the derivative:}\\
+    \frac{\partial\ln{p(\pmb{T}, \pmb{X} | \pmb{\theta})}}{\partial \theta_{dk}} &= \frac{\partial}{\partial \theta_{dk}}\sum_{k=1}^{K}\sum_{n \in C_k}^{N} \left ( \ln{\pi_{k}} + \sum_{d=1}^{D}\pmb{x}_{nd}\ln{\theta_{dk}} +
+    (1-\pmb{x}_{nd})\ln{(1 - \theta_{dk})} \right )\\
+   0 &= 0 + \sum_{n \in C_k}^{N} \left[ \frac{\pmb{x}_{nd}}{\theta_{dk}} -
+    \frac{(1-\pmb{x}_{nd})}{(1 - \theta_{dk})}  \right] \\
+   0 &= \sum_{n \in C_k}^{N} \left[ \frac{\pmb{x}_{nd}}{\theta_{dk}}\right] -
+   \sum_{n \in C_k}^{N} \left[ \frac{(1-\pmb{x}_{nd})}{(1 - \theta_{dk})}  \right] \\
+   \sum_{n \in C_k}^{N} \left[ \frac{\pmb{x}_{nd}}{\theta_{dk}}\right] &=
+   \sum_{n \in C_k}^{N} \left[ \frac{(1-\pmb{x}_{nd})}{(1 - \theta_{dk})}  \right] \\
+   \sum_{n \in C_k}^{N} \left[ \frac{(1 - \theta_{dk})}{\theta_{dk}}\right] &=
+   \sum_{n \in C_k}^{N} \left[ \frac{(1-\pmb{x}_{nd})}{\pmb{x}_{nd}}  \right] \\
+   \sum_{n \in C_k}^{N} \left[ \frac{1}{\theta_{dk}} - \frac{\theta_{dk}}{\theta_{dk}}\right] &=
+   \sum_{n \in C_k}^{N} \left[ \frac{1}{\pmb{x}_{nd}} - \frac{\pmb{x}_{nd}}{\pmb{x}_{nd}}  \right] \\
+   \sum_{n \in C_k}^{N} \left[ \frac{1}{\theta_{dk}}\right] - \sum_{n \in C_k}^{N} \left[\frac{\theta_{dk}}{\theta_{dk}}\right] &=
+   \sum_{n \in C_k}^{N} \left[ \frac{1}{\pmb{x}_{nd}}\right]  - \sum_{n \in C_k}^{N} \left[\frac{\pmb{x}_{nd}}{\pmb{x}_{nd}}  \right] \\
+   \sum_{n \in C_k}^{N} \left[ \frac{1}{\theta_{dk}}\right] - \sum_{n \in C_k}^{N} \left[1 \right] &=
+   \sum_{n \in C_k}^{N} \left[ \frac{1}{\pmb{x}_{nd}}\right]  - \sum_{n \in C_k}^{N} \left[ 1 \right] \\
+   \sum_{n \in C_k}^{N} \left[ \frac{1}{\theta_{dk}}\right] &=
+   \sum_{n \in C_k}^{N} \left[ \frac{1}{\pmb{x}_{nd}}\right] \\
+   \sum_{n \in C_k}^{N} \theta_{dk} &= \sum_{n \in C_k}^{N} \pmb{x}_{nd} \\
+   \text{solving for } \theta_{dk} \text{:}\\
+   \theta_{dk} = \frac{1}{N_{k}} \sum_{n \in C_k}^{N} \pmb{x}_{nd} \\
+\end{align*}{}
+
+Here, $\theta_{dk}$ is represents the average number of words \textit{d} for each document, for class \textit{k}.
+
+
+
+\subsection*{5}
+
+\begin{align*}
+    p(\pmb{\mathcal{C}_{1}} | \pmb{x}) &= \frac{p(\pmb{x}|\pmb{\mathcal{C}_1})p(\pmb{\mathcal{C}_1})}{p(\pmb{x})} \\
+    &= \frac{p(\pmb{x}|\pmb{\mathcal{C}_1})p(\pmb{\mathcal{C}_1})}
+    {\sum_{k=1}^{K} p(\pmb{x_{k}}|\pmb{\mathcal{C}_k})p(\pmb{\mathcal{C}_k})} \\
+    \text{Using \ } p(x|\mathcal{C}_{k}) = \prod_{d=1}^{D} p(x_{d}|\mathcal{C}_{k}) \text{ \ :}\\
+    &= \frac{\pi_{1}\prod_{d=1}^{D}p(\pmb{x_{nd}}|\pmb{\theta_{d1}})}
+    {\sum_{k=1}^{K} \pi_{k} \prod_{d=1}^{D} p(\pmb{x_{nd}}|\theta_{dk})} \\
+\end{align*}{}
+
+\subsection*{6}
+The Bernoulli Distribution is given by:
+\begin{align*}
+    p(\pmb{x}) &= \pi \theta_{dk}^{x_{d}}(1-\theta_{dk})^{1-x_{nd}}
+\end{align*}{}
+
+Thus, rewriting it, we get:
+\begin{align*}
+    p(\pmb{\mathcal{C}_{1}} | \pmb{x}) &= \frac{p(\pmb{x}|\pmb{\mathcal{C}_1})p(\pmb{\mathcal{C}_1})}{p(\pmb{x})} \\
+    &= \frac{\pi_{1}\prod_{d=1}^{D} \left[\theta_{d1}^{x_{d}}(1 - \theta_{d1})^{1-x_{d}} \right]}
+    {\sum_{k=1}^{K} \pi_{k}\prod_{d=1}^{D} \left[\theta_{dk}^{x_{d}}(1 - \theta_{dk})^{1-x_{d}} \right]}
+\end{align*}{}
+\bigskip
+
+\section*{Multi-class Logistic Regression and Multilayer Perceptrons}
+
+\subsection*{1.}
+\subsubsection*{Likelihood:}
+
+\begin{align*}
+    p(\pmb{T}|\pmb{\Phi, w_{1},...,w_{k}}) &= \prod_{n=1}^{N} \prod_{k=1}^{K} p(\pmb{\mathcal{C}}_{k}|\Phi_{n})^{t_{nk}}\\
+    &= \prod_{n=1}^{N} \prod_{k=1}^{K} y_{nk}^{t_{nk}}\\
+    &= \prod_{n=1}^{N} \prod_{k=1}^{K} y_{k}(\Phi_{n})^{t_{nk}}\\
+\end{align*}{}
+Here \textbf{T} is a target matrix (N x K) with elements $t_{nk}$
+
+\subsubsection*{Log-Likelihood:}
+\begin{align*}
+    \ln{p(\pmb{T}|\pmb{\Phi, w_{1},...,w_{k}})} &= \ln{\prod_{n=1}^{N} \prod_{k=1}^{K} y_{k}(\Phi_{n})^{t_{nk}}}\\
+    &= \sum_{n=1}^{N}\ln{\prod_{k=1}^{K} y_{k}(\Phi_{n})^{t_{nk}}} \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K}t_{nk}\ln{y_{k}(\Phi_{n})}
+\end{align*}{}
+
+
+\subsubsection*{Derivative $\frac{\partial y_{k}}{\partial w_{j}}$ :}
+
+Assuming the convention that $ \frac{\partial f(x)}{\partial x} = (\frac{\partial f(x)}{\partial x_{1}},...,\frac{\partial f(x)}{\partial x_{D}})$ is a row vector that will be used against the column vector  x, thus the corresponding gradient vector is again a row vector as well.
+
+Also noting that:
+$\frac{\partial y_{k}}{\partial w_{j}} = \frac{\partial exp(a_k)}{\sum_{i}exp(a_{i})}$
+
+\begin{align*}
+    &= \frac{\sum_{i}exp(a_{i}).exp(a_{k})\frac{\partial a_k}{\partial w_{j}} - exp(a_{k})\sum_{i}exp(a_{i})\frac{\partial a_{i}}{\partial w_{j}}}
+    {\left[\sum_{i}exp(a_{i}) \right]^{2}} \\
+    &= \frac{\sum_{i}exp(a_{i}).exp(a_{k})\frac{\partial a_k}{\partial w_{j}}}{\left[\sum_{i}exp(a_{i}) \right]^{2}} - \frac{exp(a_{k})\sum_{i}exp(a_{i})\frac{\partial a_{i}}{\partial w_{j}}}
+    {\left[\sum_{i}exp(a_{i}) \right]^{2}} \\
+    &= \frac{exp(a_{k})\frac{\partial a_k}{\partial w_{j}}}{\left[\sum_{i}exp(a_{i}) \right]} - \frac{exp(a_{k})\sum_{i}exp(a_{i})\frac{\partial a_{i}}{\partial w_{j}}}
+    {\left[\sum_{i}exp(a_{i}) \right]^{2}} \\
+    \text{As } a_{k}=w^{T}_{k}\Phi \text{ and } \frac{\partial y_{k}}{\partial a_{j}} = y_{k}[I_{kj} - y_{j}] \\
+    &= y_{k}(\Phi)\Phi^{T}I_{kj} - y_{j}y_{k}(\Phi)\Phi^{T}\\
+    &= y_{k}(\Phi)\Phi^{T}[I_{kj} - y_{j}(\Phi)]
+ \end{align*}{}
+
+
+\subsubsection*{Compute $\nabla_{w_{j}} \ln{p(\pmb{T}|\pmb{\Phi}, \pmb{w_{1},...,w_{K}})}$:}
+
+From above:
+$\frac{\partial y_{k}}{\partial w_{j}} = y_{k}(\Phi)\Phi^{T}[I_{kj} - y_{j}(\Phi)]$
+
+\begin{align*}
+    \nabla_{w_{j}} \ln{p(\pmb{T}|\pmb{\Phi}, \pmb{w_{1},...,w_{K}})} &=  \sum_{n=1}^{N}\sum_{k=1}^{K}\left [ t_{nk}\ln{y_{k}(\Phi_{n})} \right ] \frac{\partial y_{k}}{\partial w_{j}}\\
+    &= \sum_{n=1}^{N}\sum_{k=1}^{K} \left[\frac{t_{nk}}{y_{k}(\Phi_{n})}\right]
+    \left[y_{k}(\Phi_{n})\Phi^{T}_{n}[I_{kj} - y_{j}(\Phi_{n})])\right]\\
+    &= \sum_{n=1}^{N}\sum_{k=1}^{K} \left[ \frac{t_{nk}}{y_{k}(\Phi_{n})}
+    y_{k}(\Phi_{n})\Phi^{T}_{n}I_{kj} - 
+    \frac{t_{nk}}{y_{k}(\Phi_{n})}
+    y_{k}(\Phi_{n})\Phi^{T}_{n} y_{j}(\Phi_{n})\right]\\
+    &= \sum_{n=1}^{N}\sum_{k=1}^{K} \left[t_{nk}
+    \Phi^{T}_{n}I_{kj} - 
+    t_{nk}\Phi^{T}_{n} y_{j}(\Phi_{n}) \right]\\
+    &= \sum_{n=1}^{N}\sum_{k=1}^{K} \left[t_{nk}
+    \Phi^{T}_{n}I_{kj} \right] - \sum_{n=1}^{N}\sum_{k=1}^{K} \left[t_{nk}\Phi^{T}_{n} y_{j}(\Phi_{n}) \right]\\
+    &= \sum_{n=1}^{N}\Phi^{T}_{n}\sum_{k=1}^{K} t_{nk}
+    I_{kj}  - \sum_{n=1}^{N}\Phi^{T}_{n}y_{j}(\Phi_{n}) \sum_{k=1}^{K} t_{nk} \\
+    \text{From Bishop} \sum_{k=1}^{K} t_{nk} = 1\\
+    \text{Summation of identity matrix times t is another } t_{nj} \text{matrix} \\
+    &= \sum_{n=1}^{N}\Phi^{T}_{n}t_{nj}  - \sum_{n=1}^{N}\Phi^{T}_{n}y_{j}(\Phi_{n}) \\
+    &= \sum_{n=1}^{N}\Phi^{T}_{n} \left [t_{nj}  - y_{j}(\Phi_{n}) \right] \\
+\end{align*}{}
+
+
+\subsubsection*{Your gradient is now a sum, can you rewrite as a product? and Why is it useful?}
+Yes it can be written as a matrix multiplication. 
+Why is it useful?
+
+\subsection*{2}
+The negative log likelihood will be:
+\begin{align*}
+    -\ln{p(\pmb{T}|\pmb{\Phi, w_{1},...,w_{k}})} &= 
+    -\sum_{n=1}^{N}\sum_{k=1}^{K}t_{nk}\ln{y_{k}(\Phi_{n})} \\
+    &= E(w_{1},...,w_{k})
+\end{align*}{}
+
+Thus, taking the negative log gives the cross entropy error function. The relationship between the cross entropy error function and the log likelihood function would be inverse due to the presence of the negative sign. So, maximizing the log likelihood would minimize the cross entropy error.
+The weights get updated based on the equation: $w^{(\tau + 1)} = w^{\tau} - \eta \nabla E_{n}$ and with Cross Entropy, the $E_{n}$ has a negative sign that gets cancelled out hence there is no effect on the weight updates during optimization  (\url{http://www.awebb.info/blog/cross\_entropy}.
+
+
+
+\subsection*{3}
+Initialize batch size to be $B$ \\
+Initialize the number of batches $= n_{B}$ \\
+$E_{n} = -\sum_{k=1}^{K}t_{nk}\ln{y_{k}}(\Phi_{n})$
+Initialize $t = 0$ where $t \in {0,..,T}$
+
+while t is less than or equal to T
+for mini batch in list of mini-batch $[n_{1},...,n_{B}]$
+\begin{enumerate}
+    \item Compute forward pass
+        \begin{itemize}
+            \item make prediction
+            \item compute error
+        \end{itemize}{}
+    \item Compute backward pass
+    \begin{itemize}
+        \item Compute gradient $\frac{\partial E}{\partial W_{ij}}$
+        \item Update weights using $w^{(\tau + 1)} = w^{\tau} - \eta \nabla E_{n}$  
+    \end{itemize}{}
+\end{enumerate}{}
+
+Mini batch gradient can be more computationally effective when using extremely large datasets. As the model gets updated at the end of one training epoch. The work can also be distributed across machines and performed in parallel  allowing for much faster speeds in computation.( \url{https://machinelearningmastery.com/gentle-introduction-mini-batch-gradient-descent-configure-batch-size/})
+\bigskip
+
+\subsection*{4}
+
+$x = (0.3, 0.7)^T$\\
+$y = (0, 0, 1)^T$
+
+To compute the forward pass:
+
+\begin{align*}
+    a_{0} &= W_{1}x \\
+    &= \left[\begin{matrix}     
+        0.4 && 0.87 \\
+        0.58 && 0.34 \\
+       \end{matrix} \right] 
+       \left[\begin{matrix}
+        0.3  \\
+        0.7 \\
+       \end{matrix} \right] \\
+    &= \left[\begin{matrix}
+        0.729  \\
+        0.412 \\
+       \end{matrix} \right] \\
+    z_{0} &= tanh(a_{0}) \\
+    &= \frac{e^{z} - e^{-z}}{e^{z} + e^{-z}} \\
+    &= \left[\begin{matrix}
+        \frac{e^{0.729} - e^{-0.729}}{e^{0.729} + e^{-0.729}}  \\
+        \frac{e^{0.412} - e^{-0.412}}{e^{0.412} + e^{-0.412}} \\
+       \end{matrix} \right] \\
+    &= \left[\begin{matrix}
+        0.622  \\
+        0.390  \\
+       \end{matrix} \right] \\
+    a_{1} &= W_{2}z_{0} \\
+    &= \left[\begin{matrix}     
+        0.12 && 0.87 \\
+        0.82 && 0.31 \\
+        0.77 && 0.9 \\
+       \end{matrix} \right] 
+       \left[\begin{matrix}
+        0.622 \\
+        0.390 \\
+       \end{matrix} \right] \\
+    &= \left[\begin{matrix}
+        0.414 \\
+        0.630 \\
+        0.830 \\
+       \end{matrix} \right] \\
+    y_{out} &= softmax(a_1) \\
+    &= \frac{exp(a_{1})}{\sum_{j=1}^{3}exp(a_{j})} \\
+    &= \left[\begin{matrix}     
+        \frac{exp(0.414)}{exp(0.414) + exp(0.630) + exp(0.830)} \\
+        \frac{exp(0.630)}{exp(0.414) + exp(0.630) + exp(0.830)} \\
+        \frac{exp(0.830)}{exp(0.414) + exp(0.630) + exp(0.830)} \\
+       \end{matrix} \right] \\
+    &= \left[\begin{matrix}
+        0.266 \\
+        0.330 \\
+        0.403 \\
+       \end{matrix} \right] \\
+\end{align*}{}
+
+The cross entropy loss error E is then given by:
+\begin{align*}
+    E(w_{1},...w_{K}) &= -\sum_{n=1}^{N}\sum_{k=1}^{K}t_{nk}\ln{y_{k}} \\
+    &= -(0.\ln{0.266} + 0.\ln{0.330} + 1.\ln{0.403}) \\
+    &= 0.908
+\end{align*}{}
+
+\subsubsection*{Computing the derivative $\frac{\partial E}{\partial w_{5}}$:}
+
+From Bishop 5.3.2, The derivative for the first layer weight $\frac{\partial E}{\partial w_{5}}$ is given by:
+
+\begin{align*}
+    \frac{\partial E}{\partial w_{5}} &= \sum_{i=1} \frac{\partial E}{\partial y_{out}}* 
+                                                \frac{\partial y_{out}}{\partial a_{1}}*
+                                                \frac{\partial a_{1}}{\partial w_{5}}\\
+\end{align*}{}
+
+(From Bishop 5.3.2) This can be reduced to :
+
+\begin{align*}
+    \frac{\partial E}{\partial w_{5}} &= \delta_{01}*z_{0}^{1} \\
+    \delta_{01} &= - (y_{01} - y_{out})(y_{out})(1 - y_{out})\\
+                &= - (0 - 0.266)(0.266)(1-0.266) \\
+                &= 0.052 \\
+    \frac{\partial E}{\partial w_{5}} &= 0.052 * 0.622 \\
+    &= 0.032
+\end{align*}{}
+
+\subsubsection*{Weight Update with $\eta = 0.05$:}
+
+$\frac{\partial E}{\partial w_{5}} = 0.032$ 
+Weight Update is given by:
+\begin{align*}
+    w^{(\tau + 1 )} &= w^{\tau} - \eta \nabla E_{n} \\
+    w_{5}^{(\tau + 1 )} &= w_{5}^{\tau} - (0.05) \nabla E_{5} \\
+    &= 0.12 - (0.05)(0.032) \\
+    &= 0.118
+\end{align*}{}
+
+Similarly, the weights for $w_{1}, w_{2}, w_{3}, w_{4},w_{6}, w_{7}, w_{8}, w_{9}, w_{10}$ can be calculated:
+
+\begin{align*}
+    w_{1}^{(\tau + 1 )} &= 0.4 - (0.05 * -0.029) = 0.401 \\
+    w_{2}^{(\tau + 1 )} &= 0.87 - (0.05 * -0.067) = 0.873 \\
+    w_{3}^{(\tau + 1 )} &= 0.58 - (0.05 * -0.052) = 0.583\\
+    w_{4}^{(\tau + 1 )} &= 0.34 - (0.05 * -0.120) = 0.346 \\
+    w_{6}^{(\tau + 1 )} &= 0.87 - (0.05 * 0.104) = 0.865 \\
+    w_{7}^{(\tau + 1 )} &= 0.82 - (0.05 * 0.206) = 0.810\\
+    w_{8}^{(\tau + 1 )} &= 0.31 - (0.05 * 0.129) = 0.304\\
+    w_{9}^{(\tau + 1 )} &= 0.77 - (0.05 * -0.371) = 0.789\\
+    w_{10}^{(\tau + 1 )} &= 0.9 - (0.05 * -0.233) = 0.912\\
+\end{align*}{}
+
+Therefore the updated weights for $W_{1}$ and $W_{2}$  are:
+\begin{align*}
+    W_{1} &= \left[\begin{matrix}     
+             0.401 && 0.873 \\
+             0.583 && 0.346 \\
+        \end{matrix}\right]
+    \\
+    W_{2} &= \left[\begin{matrix}     
+             0.118 && 0.865 \\
+             0.810 && 0.304 \\
+             0.789 && 0.912
+        \end{matrix}\right]
+\end{align*}{}
+
+\subsubsection*{Compute Loss}
+\begin{align*}
+    a_{0} &= W_{1}x \\
+    &= \left[\begin{matrix}     
+        0.401 && 0.873 \\
+        0.583 && 0.346 \\
+       \end{matrix} \right] 
+       \left[\begin{matrix}
+        0.3  \\
+        0.7 \\
+       \end{matrix} \right] \\
+    &= \left[\begin{matrix}
+        0.731 \\
+        0.417 \\
+       \end{matrix} \right] \\
+    z_{0} &= tanh(a_{0}) \\
+    &= \frac{e^{z} - e^{-z}}{e^{z} + e^{-z}} \\
+    &= \left[\begin{matrix}
+        \frac{e^{0.731} - e^{-0.731}}{e^{0.731} + e^{-0.731}}  \\
+        \frac{e^{0.417} - e^{-0.417}}{e^{0.417} + e^{0.417}} \\
+       \end{matrix} \right] \\
+    &= \left[\begin{matrix}
+        0.624  \\
+        0.394  \\
+       \end{matrix} \right] \\
+    a_{1} &= W_{2}z_{0} \\
+    &= \left[\begin{matrix}     
+        0.118 && 0.865 \\
+        0.810 && 0.304 \\
+        0.789 && 0.912
+       \end{matrix} \right] 
+       \left[\begin{matrix}
+        0.624  \\
+        0.394  \\
+       \end{matrix} \right] \\
+    &= \left[\begin{matrix}
+        0.414 \\
+        0.625 \\
+        0.852 \\
+       \end{matrix} \right] \\
+    y_{out} &= softmax(a_1) \\
+    &= \left[\begin{matrix}     
+        \frac{exp(0.414)}{exp(0.414) + exp(0.625) + exp(0.852)} \\
+        \frac{exp(0.625)}{exp(0.414) + exp(0.625) + exp(0.852)} \\
+        \frac{exp(0.852)}{exp(0.414) + exp(0.625) + exp(0.852)} \\
+       \end{matrix} \right] \\
+    &= \left[\begin{matrix}
+        0.264 \\
+        0.326 \\
+        0.409 \\
+       \end{matrix} \right] \\
+\end{align*}{}
+
+The cross entropy loss error E is now  given by:
+\begin{align*}
+    E(w_{1},...w_{K}) &= -\sum_{n=1}^{N}\sum_{k=1}^{K}t_{nk}\ln{y_{k}} \\
+    &= -(0.\ln{0.264} + 0.\ln{0.326} + 1.\ln{0.409}) \\
+    &= 0.894
+\end{align*}{}
+
+The error now decreased to 0.894 from 0.909, indicating that the backpropagation helped in correcting the error by changing the weights in the desired manner. 
+
+For $j= t^{(n)}$:
+\begin{align*}
+    \frac{\partial \mathcal{L}^{(n)}}{\partial W_{ij}} &=
+= \mathbf{\delta}_j^q
+\frac{\partial \log q_j}{\partial W_{ij}} \\
+&= \mathbf{\delta}_j^q
+\frac{\partial w^{T}_{j}x + b_{j}}{\partial W_{ij}} \\
+\text{Since } w^{T}_{j} \text{is simply the jth column of W:}\\
+&= \mathbf{\delta}_j^q
+\frac{\partial W^{ij}x_{j} + b_{j}}{\partial W_{ij}} \\
+&= \mathbf{\delta}_j^q x_{j} \\
+\end{align*}{}
+
+\end{document}
